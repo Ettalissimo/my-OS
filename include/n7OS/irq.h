@@ -27,4 +27,8 @@ typedef struct {
 
 void init_irq_entry(int irq_num, uint32_t addr);
 
+
+void init_idt_entry(int num_line, uint32_t handler_addr);
+
+void load_idt(void);
 #endif
