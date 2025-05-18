@@ -17,15 +17,24 @@ handler_IT:
     iret
 
 
+.text
 .globl handler50
-
 handler50:
+    # Keep it simple first for testing
+    pusha
+    cld                    # Clear direction flag
+    call c_handler_50      # Call C handler
+    popa
+    iret
+
+
+
+.globl handler32
+handler32:
     pushl %eax
     pushl %ecx
     pushl %edx
-
-    call handler50_C
-
+    call timer_handler_C    # Replace test_signal with timer_handler_C
     popl %edx
     popl %ecx
     popl %eax
@@ -33,10 +42,27 @@ handler50:
 
 
 
-.globl handler32
-handler32:
+.text
+.globl timer_handler
+timer_handler:
+    pushl %eax
+    pushl %ecx
+    pushl %edx
+    call timer_handler_C
+    popl %edx
+    popl %ecx
+    popl %eax
     iret
 
-
-
+.text
+.globl keyboard_handler
+keyboard_handler:
+    pushl %eax
+    pushl %ecx
+    pushl %edx
+    call keyboard_interrupt_handler
+    popl %edx
+    popl %ecx
+    popl %eax
+    iret
 

@@ -18,6 +18,8 @@ DIRS=--directory=kernel --directory=boot --directory=bin --directory=lib
 
 EMACS=emacs
 
+ASM_OBJS = kernel/handler_IT.o
+
 # cible principale, on nettoie tout avant
 .PHONY: all
 all: clean kernel.bin
@@ -38,7 +40,7 @@ bin/app.o:
 	(cd bin ; make)
 
 # generation du noyau
-kernel.bin: boot/crt0.o $(LIBS) kernel/task_dump_screen.o bin/app.o kernel/kernel.o
+kernel.bin: boot/crt0.o $(LIBS) kernel/task_dump_screen.o bin/app.o kernel/kernel.o 
 	$(LD) $(LDFLAGS) -e entry -Tboot/kernel.lds $^ -o $@
 
 clean:

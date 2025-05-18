@@ -47,7 +47,14 @@ void initialise_paging() {
     extern void console_putbytes();
     extern const char tick_msg[];
     extern uint64_t idt[];
-    extern void test_signal();
+    // extern void test_signal();
+
+    extern void timer_handler();
+    extern void handler50();
+
+
+    alloc_page_entry((uint32_t)&timer_handler, 1, 1);
+
 
     alloc_page_entry((uint32_t)&kernel_start, 1, 1);
     alloc_page_entry((uint32_t)&handler32, 1, 1);
@@ -55,12 +62,13 @@ void initialise_paging() {
     alloc_page_entry((uint32_t)&console_putbytes, 1, 1);
     alloc_page_entry((uint32_t)tick_msg, 1, 1);
     alloc_page_entry((uint32_t)&idt[32], 1, 1);
+    alloc_page_entry((uint32_t)&handler50, 1, 1);
 
     
     alloc_page_entry(0x000B8000, 1, 1);  // ✅ VGA text mode (écriture directe à l'écran)
 
     alloc_page_entry(0xB8000, 1, 1);
-    alloc_page_entry((uint32_t)&test_signal, 1, 1);
+    //alloc_page_entry((uint32_t)&test_signal, 1, 1);
 
     // 🔍 Vérifier et mapper la stack
     uint32_t esp;

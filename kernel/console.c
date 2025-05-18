@@ -62,3 +62,29 @@ void console_set_cursor(int pos) {
     outb(0x0E, 0x3D4);
     outb((pos >> 8) & 0xFF, 0x3D5);
 }
+
+void console_get_cursor(int* lig, int* col) {
+    // Calculate row and column from current cursor position
+    *lig = cursor_pos / VGA_WIDTH;
+    *col = cursor_pos % VGA_WIDTH;
+}
+
+void print_hex(uint32_t val, int size) {
+    static const char *hex_chars = "0123456789ABCDEF";
+    char buf[9];
+    buf[8] = '\0';
+
+    for (int i = 7; i >= 0; i--) {
+        buf[i] = hex_chars[val & 0xF];
+        val >>= 4;
+    }
+
+    console_putbytes(buf + (8 - size), size);
+}
+
+// Add this new function for x,y cursor positioning
+void console_set_cursor_xy(int lig, int col) {
+    int pos = lig * VGA_WIDTH + col;
+    console_set_cursor(pos);
+}
+

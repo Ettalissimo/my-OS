@@ -45,4 +45,12 @@ void init_console();
  */
 void console_putbytes(const char *s, int len);
 
+void print_hex(uint32_t val, int size);
+
+void console_get_cursor(int* lig, int* col);
+
+void console_set_cursor(int pos);
+
+void console_set_cursor_xy(int lig, int col);
+void display_time(void);
 #endif
