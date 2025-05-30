@@ -43,7 +43,7 @@ void console_putchar(const char c) {
 
     // Saut de ligne automatique
     if (cursor_pos >= VGA_WIDTH * VGA_HEIGHT) {
-        cursor_pos = 0;  // tu peux implémenter un scroll ici si tu veux plus tard
+        cursor_pos = 0;  
     }
 
     console_set_cursor(cursor_pos);
@@ -82,7 +82,7 @@ void print_hex(uint32_t val, int size) {
     console_putbytes(buf + (8 - size), size);
 }
 
-// Add this new function for x,y cursor positioning
+//function for x,y cursor positioning
 void console_set_cursor_xy(int lig, int col) {
     int pos = lig * VGA_WIDTH + col;
     console_set_cursor(pos);

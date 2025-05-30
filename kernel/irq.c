@@ -78,5 +78,5 @@ void c_handler_50(void) {
     console_putbytes("Handler 50 called!\n", 20);
     // Only send EOI if this was a hardware interrupt
     // For software interrupts (like int $50), we don't need EOI
-    //outb(0x20, 0x20);
+    // outb(0x20, 0x20);
 }

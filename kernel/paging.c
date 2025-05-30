@@ -1,6 +1,6 @@
 #include <n7OS/paging.h>
 #include <n7OS/mem.h>
-#include <stddef.h> // pour NULL
+#include <stddef.h> 
 
 // Répertoire de pages global du noyau
 static PageDirectory kernel_directory;
@@ -38,7 +38,7 @@ void initialise_paging() {
         kernel_directory.tables_physical[table_idx] = (uint32_t)table;
     }
 
-    // ⚠️ Mapper aussi l'adresse de la structure elle-même
+    // Mapper aussi l'adresse de la structure elle-même
     alloc_page_entry((uint32_t)&kernel_directory, 1, 1);
 
     extern void kernel_start();
@@ -65,12 +65,12 @@ void initialise_paging() {
     alloc_page_entry((uint32_t)&handler50, 1, 1);
 
     
-    alloc_page_entry(0x000B8000, 1, 1);  // ✅ VGA text mode (écriture directe à l'écran)
+    alloc_page_entry(0x000B8000, 1, 1);  //  VGA text mode (écriture directe à l'écran)
 
     alloc_page_entry(0xB8000, 1, 1);
     //alloc_page_entry((uint32_t)&test_signal, 1, 1);
 
-    // 🔍 Vérifier et mapper la stack
+    // Vérifier et mapper la stack
     uint32_t esp;
     __asm__ volatile("mov %%esp, %0" : "=r"(esp));
 
@@ -82,11 +82,11 @@ void initialise_paging() {
     //alloc_page_entry(0x00112000, 1, 1);  // aligne sur 4 Ko = 0x112000
     alloc_page_entry(esp & 0xFFFFF000, 1, 1);
 
-        // Activation de la pagination
-    console_putbytes("BEFORE CR3\n", 11);
+    // Activation de la pagination
+    //console_putbytes("BEFORE CR3\n", 11);   //(for debugging)
     __asm__ volatile("mov %0, %%cr3" :: "r"(kernel_directory.physical_addr));
 
-    console_putbytes("BEFORE CR0\n", 11);
+    //console_putbytes("BEFORE CR0\n", 11);   //(for debugging)
     sleep(3000); 
 
 
@@ -95,13 +95,11 @@ void initialise_paging() {
     cr0 |= 0x80000000; // bit PG (enable paging)
     __asm__ volatile("mov %0, %%cr0" :: "r"(cr0));
 
-    console_putbytes("AFTER CR0\n", 10);
+    // console_putbytes("AFTER CR0\n", 10);  //(for debugging)
 
     // Test immédiat (instruction sans pile)
-    //__asm__ volatile("nop");
-    sleep(3000); 
-    sleep(3000);
-    console_putbytes("AFTER PAGING\n", 15);
+;
+    // console_putbytes("AFTER PAGING\n", 15);   //(for debugging)
 
 
 

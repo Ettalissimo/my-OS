@@ -4,5 +4,6 @@
 void init_keyboard(void);
 void keyboard_interrupt_handler(void);
 char kgetch(void);
+int is_escape_pressed(void);  
 
 #endif

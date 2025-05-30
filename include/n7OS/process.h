@@ -1,4 +1,4 @@
-#include <stdint.h>  // ✅ à ajouter tout en haut
+#include <stdint.h>  
 
 #ifndef _PROCESSUS_H_
 #define _PROCESSUS_H_

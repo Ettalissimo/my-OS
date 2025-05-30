@@ -9,6 +9,8 @@ static char circular_buffer[BUFFER_SIZE];
 static int buffer_read = 0;
 static int buffer_write = 0;
 
+static int escape_pressed = 0; 
+
 
 // Table de conversion scancode -> ASCII (layout QWERTY)
 static char kbdmap[] = {
@@ -26,16 +28,24 @@ void keyboard_interrupt_handler() {
     if (!(scancode & 0x80)) {
         char c = kbdmap[scancode];
         if (c) {
-            // Add to circular buffer
-            int next_write = (buffer_write + 1) % BUFFER_SIZE;
-            if (next_write != buffer_read) {
-                circular_buffer[buffer_write] = c;
-                buffer_write = next_write;
+            if (c == 27) {  // ESC key
+                escape_pressed = 1;
+            } else  if (!escape_pressed) {
+                // Add to circular buffer
+                int next_write = (buffer_write + 1) % BUFFER_SIZE;
+                if (next_write != buffer_read) {
+                    circular_buffer[buffer_write] = c;
+                    buffer_write = next_write;
+                }
+                console_putchar(c);  // Echo character
             }
-            console_putchar(c);  // Echo character
         }
     }
     outb(0x20, 0x20);  // EOI
+}
+
+int is_escape_pressed(void) {
+    return escape_pressed;
 }
 
 void init_keyboard() {

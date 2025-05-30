@@ -3,7 +3,7 @@
 #include <n7OS/console.h>
 #include <n7OS/irq.h>
 #include <unistd.h>
-#include <n7OS/cpu.h>    // Add this for outw
+#include <n7OS/cpu.h>   
 
 
 extern void handler_syscall();

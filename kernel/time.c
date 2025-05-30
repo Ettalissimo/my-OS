@@ -31,14 +31,7 @@ void timer_handler_C() {
         //console_putbytes(tick_msg, 6);
     }
 
-    // 🔁 Appelle l’ordonnanceur toutes les 10 ticks (~10ms si TIMER_FREQ = 1000)
-    static int compteur = 0;
-    compteur++;
-    if (compteur >= 10) {
-        compteur = 0;
-        ordonnanceur();  // 🎯 appel automatique
-    }
-    
+
     outb(0x20, 0x20);  // EOI
 }
 
