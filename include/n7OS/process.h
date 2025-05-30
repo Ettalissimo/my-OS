@@ -1,5 +1,11 @@
+#include <stdint.h>  // ✅ à ajouter tout en haut
+
 #ifndef _PROCESSUS_H_
 #define _PROCESSUS_H_
+
+#define STACK_SIZE 1024
+#define MAX_PROCESSUS 10
+
 
 typedef enum {
     ELU,
@@ -13,7 +19,8 @@ typedef struct {
     char nom[32];
     etat_t etat;
     void (*fonction)(void);
-    unsigned int *pile;
+    uint32_t regs[5];             // Contexte : ebx, esp, ebp, esi, edi
+    uint32_t pile[STACK_SIZE];    // vraie pile du processus
 } processus_t;
 
 void init_processus(void);

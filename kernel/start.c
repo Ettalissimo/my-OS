@@ -16,6 +16,8 @@
 extern void processus1();
 extern void idle();
 
+extern processus_t processus[MAX_PROCESSUS];
+extern int pid_courant;
 
 
 
