@@ -387,37 +387,8 @@ void kernel_start(void)
 
     // Lancement du premier processus
     ordonnanceur();
-    // --- End Process Management Code ---
-    /*init_pic();
-    console_putbytes("PIC initialized\n", 16);
-    
-    // Set up timer and its handler
-    extern void timer_handler();
-    init_irq_entry(32, (uint32_t)timer_handler);
-    init_timer();
-    console_putbytes("Timer initialized\n", 18);
-    
-    // Load IDT after setting up all handlers
-    load_idt();
-    console_putbytes("IDT loaded\n", 11);
-    
-    // Create processes
-    int pid1 = create_process(process1);
-    console_putbytes("Process 1 created\n", 17);
-    
-    int pid2 = create_process(process2);
-    console_putbytes("Process 2 created\n", 17);
-    
-    printf("Created processes: PID1=%d, PID2=%d\n", pid1, pid2);
-    
-    // Make sure timer interrupt is unmasked
-    outb(inb(0x21) & ~1, 0x21);  // Unmask IRQ0 (timer)
-    outb(0xFF, 0xA1);            // Mask all slave PIC interrupts
-    
-    // Enable interrupts
-    sti();
-    console_putbytes("Interrupts enabled\n", 19);
-    // */
+
+
 
 
 
