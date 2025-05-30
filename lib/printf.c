@@ -70,7 +70,7 @@ flush(struct printf_state *state)
 	 * It would be nice to call write(1,) here, but if fd_set_console
 	 * has not been called, it will break.
 	 */
-	console_putbytes((const char *)state->buf, state->index);
+	write(state->buf, state->index);  // Use write syscall instead
 
 	state->index = 0;
 }

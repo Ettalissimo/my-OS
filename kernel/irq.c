@@ -4,6 +4,7 @@
 #include <n7OS/cpu.h>
 #include <n7OS/console.h>
 
+volatile uint32_t system_ticks = 0;  // Definition of system_ticks
 extern uint64_t idt[256] __attribute__((aligned(8)));
 
 /**

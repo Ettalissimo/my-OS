@@ -30,7 +30,6 @@ void timer_handler_C() {
     if (tick_count % 1000 == 0) {
         //console_putbytes(tick_msg, 6);
     }
-    
     outb(0x20, 0x20);  // EOI
 }
 

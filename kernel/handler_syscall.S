@@ -1,29 +1,43 @@
 .text
+# nombre total d'appels systeme
+nr_syscall = 3
 
-# c'est le nombre total d'appels systeme
-nr_syscall = 1
+.extern syscall_table
 
 .globl handler_syscall
-
 handler_syscall:
-  # %eax contient le numero de l'appel system
-  # si %eax > nr_syscall-1 alors erreur
-  cmpl $nr_syscall-1, %eax
-  ja bad_sys_call
-  # %ebx = arg1, %ecx = arg2, %edx = arg3
-  # on empile pour la fonction de traitement de l'AS
-  pushl %edx
-  pushl %ecx
-  pushl %ebx
-  # appel à la fonction de traitement de l'AS : syscall_table[i] (i==%eax)
-  call *syscall_table(,%eax,4)
-  # on re-dépile
-  popl %ebx
-  popl %ecx
-  popl %edx
-iret
+    # First save critical registers
+    pushl %eax
+    pushl %ebx
+    pushl %ecx
+    pushl %edx
+    
+    # Check syscall number (using the saved eax)
+    cmpl $nr_syscall-1, 12(%esp)  # Original eax is at offset 12
+    ja bad_sys_call
+    
+    # Get syscall arguments from user stack
+    movl 12(%esp), %eax    # syscall number
+    movl 20(%esp), %ebx    # first argument
+    
+    # Make the call
+    call *syscall_table(,%eax,4)
+    
+    # Save return value in original eax position
+    movl %eax, 12(%esp)
+    
+    # Restore registers
+    popl %edx
+    popl %ecx
+    popl %ebx
+    popl %eax
+    iret
 
 bad_sys_call:
-  # on retourne -1 = erreur
-	movl $-1,%eax
-	iret
+    # Restore registers before returning
+    popl %edx
+    popl %ecx
+    popl %ebx
+    movl $-1, (%esp)  # Replace saved eax with -1
+    popl %eax
+    iret

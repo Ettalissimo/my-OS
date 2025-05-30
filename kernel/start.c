@@ -7,10 +7,27 @@
 #include <n7OS/kheap.h>
 #include <n7OS/mem.h>  // pour init_mem, findfreePage, etc.
 #include <n7OS/irq.h>
+#include <unistd.h>  // Add this at the top with other includes
+#include <n7OS/process.h>
 
 void init_timer();  // déclaration manuelle de la fonction du timer
 void init_pic();  // déclaration de la fonction
 
+void process1(void) {
+    int count = 0;
+    while(1) {
+        printf("Process 1: %d\n", count++);
+        for(volatile int i = 0; i < 100000; i++); // Shorter delay
+    }
+}
+
+void process2(void) {
+    int count = 0;
+    while(1) {
+        printf("Process 2: %d\n", count++);
+        for(volatile int i = 0; i < 100000; i++); // Shorter delay
+    }
+}
 
 // Déclaration du handler assembleur
 extern void handler50(void);
@@ -184,10 +201,90 @@ void kernel_start(void)
     console_putbytes("IDT loaded\n", 11);
     
     // Enable interrupts
+    sti();*/
+
+    // console_putbytes("Interrupts enabled\n", 19);
+    
+
+    //-------------------------------------- Pour Tester SysCall ------------------------
+
+    /*
+    initialise_paging();
+    console_putbytes("Paging initialized\n", 18);
+    
+    // Load IDT
+    load_idt();
+    console_putbytes("IDT loaded\n", 11);
+
+    // Initialize IDT and PIC
+    init_pic();
+    // Mask all interrupts except syscall (INT 0x80)
+    outb(0xFF, 0x21);  // Mask all interrupts on master PIC
+    outb(0xFF, 0xA1);  // Mask all interrupts on slave PIC
+    console_putbytes("PIC initialized with interrupts masked\n", 37);
+   
+ // Initialize syscall handler
+    extern void handler_syscall(void);
+    init_irq_entry(0x80, (uint32_t)handler_syscall);
+    init_syscall();
+    console_putbytes("Syscalls initialized\n", 22);
+    
+
+    sleep(1000);  // Wait for IDT to be set up
+    // Enable interrupts
+    //cli();  // Make sure interrupts are off
     sti();
-    console_putbytes("Interrupts enabled\n", 19);
+    console_putbytes("Interrupts enabled, testing syscalls...\n", 41);
+    
+    // Add a delay and console output to track execution
+    sleep(1000);
+    console_putbytes("Testing syscalls in 2 seconds...\n", 34);
+    sleep(2000);
+    
+    // Test example syscall with more debug output
+    console_putbytes("Calling example syscall...\n", 28);
+    int result = example();
+    console_putbytes("Example syscall returned\n", 26);
+    
+    if (result == 1) {
+        console_putbytes("Example syscall successful\n", 28);
+    } else {
+        console_putbytes("Example syscall failed!\n", 25);
+    }
+
+    // Test write syscall
+    console_putbytes("Testing write syscall...\n", 24);
+    
+    // Test using printf (should now use write syscall)
+    printf("Testing printf with write syscall\n");
+    
+    // Test direct write syscall
+    write("Direct write syscall test\n", 25);
+    
+    // Test with different lengths
+    write("Short\n", 6);
+    write("This is a longer test string to verify buffer handling\n", 52);
+    
+    // Test return value
+    int write_result = write("Test", 4);
+    printf("\nWrite returned: %d (expected 4)\n", write_result);
+    
+    
+    // Test shutdown with proper error handling
+    console_putbytes("Testing shutdown syscall...\n", 29);
+    console_putbytes("Calling shutdown(1)...\n", 24);
+
+    sleep(3000);  // Wait before shutdown
+    shutdown(1);
+    console_putbytes("Shutdown syscall called\n", 25);
+
+    
+    // If we get here, shutdown failed
+    console_putbytes("Shutdown failed!\n", 16);  
+    
     
     */
+
 
     //-------------------------------------- Pour Tester Keyboard ------------------------
 
@@ -232,7 +329,75 @@ void kernel_start(void)
 
     console_putbytes("Keyboard test completed!\n", 24);
 
-    //  */
+ //   */
+
+
+    //-------------------------------------- Pour Tester Gestion des processus ------------------------
+    
+    /*
+    initialise_paging();
+    console_putbytes("Paging initialized\n", 18);
+    
+
+    sleep(3000);  // Wait for paging to be set up
+
+
+    init_mem();    console_putbytes("Memory initialized\n", 19);
+
+    init_pic();  // Initialize PIC
+    console_putbytes("PIC initialized\n", 16);
+
+    // Initialize timer for scheduling
+    init_timer();
+    console_putbytes("Timer initialized\n", 18);
+
+    load_idt(); // Load IDT
+    console_putbytes("IDT loaded\n", 11);
+
+        // --- Process Management Code ---
+    init_process_management();
+    console_putbytes("Process management initialized\n", 32);
+
+    pid_t pid1 = create_process(process1);
+    printf("Process 1 created with PID: %d\n", pid1);
+    pid_t pid2 = create_process(process2);
+    printf("Process 2 created with PID: %d\n", pid2);
+
+    sti();  // Enable interrupts
+    schedule();
+    // --- End Process Management Code ---
+    /*init_pic();
+    console_putbytes("PIC initialized\n", 16);
+    
+    // Set up timer and its handler
+    extern void timer_handler();
+    init_irq_entry(32, (uint32_t)timer_handler);
+    init_timer();
+    console_putbytes("Timer initialized\n", 18);
+    
+    // Load IDT after setting up all handlers
+    load_idt();
+    console_putbytes("IDT loaded\n", 11);
+    
+    // Create processes
+    int pid1 = create_process(process1);
+    console_putbytes("Process 1 created\n", 17);
+    
+    int pid2 = create_process(process2);
+    console_putbytes("Process 2 created\n", 17);
+    
+    printf("Created processes: PID1=%d, PID2=%d\n", pid1, pid2);
+    
+    // Make sure timer interrupt is unmasked
+    outb(inb(0x21) & ~1, 0x21);  // Unmask IRQ0 (timer)
+    outb(0xFF, 0xA1);            // Mask all slave PIC interrupts
+    
+    // Enable interrupts
+    sti();
+    console_putbytes("Interrupts enabled\n", 19);
+    */
+
+
 
     for (int i = 0; i < 3000000; i++); // petit delay (mauvais mais simple)
 
@@ -242,5 +407,7 @@ void kernel_start(void)
     while (1) {
         // cette fonction arrete le processeur
         hlt();
+        //console_putbytes(".", 1);  // Debug output to show we're still running
+
     }
 }

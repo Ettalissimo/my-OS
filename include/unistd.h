@@ -2,6 +2,8 @@
 #define __UNISTD_H__
 
 #define NR_example 0
+#define NR_shutdown 1
+#define NR_write 2
 
 // Fonction d'enveloppe sans argument
 #define syscall0(type,name) \
@@ -47,6 +49,11 @@ __asm__ volatile ("int $0x80" \
 return __res;\
 }
 
-int example();
+
+int example(void);
+int shutdown(int n);
+// syscall2(int, write, const char*, s, int, len);
+int write(const char *s, int len);
+
 
 #endif

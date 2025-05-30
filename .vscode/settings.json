@@ -2,6 +2,8 @@
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
         "kheap.h": "c",
-        "console.h": "c"
+        "console.h": "c",
+        "process.h": "c",
+        "cpu.h": "c"
     }
 }
