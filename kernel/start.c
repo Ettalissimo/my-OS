@@ -9,6 +9,15 @@
 #include <n7OS/irq.h>
 #include <unistd.h>  // Add this at the top with other includes
 #include <n7OS/process.h>
+#include <stddef.h>
+
+
+
+extern void processus1();
+extern void idle();
+
+
+
 
 void init_timer();  // déclaration manuelle de la fonction du timer
 void init_pic();  // déclaration de la fonction
@@ -288,7 +297,7 @@ void kernel_start(void)
 
     //-------------------------------------- Pour Tester Keyboard ------------------------
 
-    // /*
+     /*
     
     initialise_paging();
     console_putbytes("Paging initialized\n", 18);
@@ -329,42 +338,53 @@ void kernel_start(void)
 
     console_putbytes("Keyboard test completed!\n", 24);
 
- //   */
+ */
 
 
     //-------------------------------------- Pour Tester Gestion des processus ------------------------
     
-    /*
+    // /*
     initialise_paging();
     console_putbytes("Paging initialized\n", 18);
-    
 
-    sleep(3000);  // Wait for paging to be set up
+    init_mem();
+    console_putbytes("Memory initialized\n", 19);
 
-
-    init_mem();    console_putbytes("Memory initialized\n", 19);
-
-    init_pic();  // Initialize PIC
+    init_pic();
     console_putbytes("PIC initialized\n", 16);
 
-    // Initialize timer for scheduling
     init_timer();
     console_putbytes("Timer initialized\n", 18);
 
-    load_idt(); // Load IDT
+    init_keyboard();
+    console_putbytes("Keyboard initialized\n", 21);
+
+    load_idt();
     console_putbytes("IDT loaded\n", 11);
 
-        // --- Process Management Code ---
-    init_process_management();
+    // Initialisation de la gestion des processus
+    init_processus();
     console_putbytes("Process management initialized\n", 32);
 
-    pid_t pid1 = create_process(process1);
-    printf("Process 1 created with PID: %d\n", pid1);
-    pid_t pid2 = create_process(process2);
-    printf("Process 2 created with PID: %d\n", pid2);
+    int pid1 = creer_processus("processus1", processus1);
+    if (pid1 >= 0) {
+        console_putbytes("Processus1 created\n", 20);
+    } else {
+        console_putbytes("Failed to create processus1\n", 29);
+    }
 
-    sti();  // Enable interrupts
-    schedule();
+    int pid2 = creer_processus("idle", idle);
+    if (pid2 >= 0) {
+        console_putbytes("Idle process created\n", 21);
+    } else {
+        console_putbytes("Failed to create idle process\n", 30);
+    }
+
+    sti();
+    console_putbytes("Interrupts enabled\n", 19);
+
+    // Lancement du premier processus
+    ordonnanceur();
     // --- End Process Management Code ---
     /*init_pic();
     console_putbytes("PIC initialized\n", 16);
@@ -395,7 +415,7 @@ void kernel_start(void)
     // Enable interrupts
     sti();
     console_putbytes("Interrupts enabled\n", 19);
-    */
+    // */
 
 
 

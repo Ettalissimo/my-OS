@@ -18,3 +18,8 @@ ctx_sw:
     popa                   # Restore all registers
     popf                   # Restore flags
     ret                    # Return to new process
+
+.globl hlt
+hlt:
+    hlt
+    ret
