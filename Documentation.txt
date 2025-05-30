@@ -1,0 +1,86 @@
+/*
+ * Projet n7OS - Documentation technique
+ * ======================================
+ * Nom : ETTAOUIL Oussama
+ * Promotion : ENSEEIHT 2SN - ASR
+ * Fichier de commentaires expliquant les tests, les résultats et les choix techniques.
+ *
+ * 1. La Console
+ * -------------
+ * - Affichage texte réalisé via la mémoire vidéo (0xB8000).
+ * - Curseur géré manuellement par écriture dans les ports 0x3D4/0x3D5.
+ * - Utilisation de console_putbytes() pour afficher des chaînes.
+ * - Gestion des caractères spéciaux : '\n', '\t', '\b', '\f', etc.
+ * Testé en affichant des messages de démarrage et dans les processus : ✓ Fonctionnel.
+
+ * 2. La Pagination
+ * ----------------
+ * - Activation du paging avec initialise_paging().
+ * - Mapping identity sur les 8 premiers Mo de mémoire.
+ * - Utilisation de CR3 et CR0 pour activer le mode pagination.
+ * - Test par écriture/lecture à une adresse virtuelle (0x400000).
+ *   Pas de page fault déclenchée, test validé : ✓ Fonctionnel.
+
+ * 3. Introduction aux Interruptions
+ * ---------------------------------
+ * - Table IDT configurée avec init_idt_entry().
+ * - Interruption logicielle testée avec int 50 (non utilisée dans la version finale).
+ * - Activation globale des interruptions avec sti().
+ * Le système répond bien aux IRQ (Timer, Clavier) : ✓ Fonctionnel.
+
+ * 4. Le Timer
+ * -----------
+ * - PIT configuré pour générer 1000 interruptions/seconde (fréquence de 1 kHz).
+ * - handler_C du timer incrémente un compteur global (tick_count).
+ * - Affichage du temps système toutes les 100 interruptions (optionnel).
+ * - Appel automatique à ordonnanceur() toutes les 10 interruptions.
+ *  Le changement de processus est automatique : ✓ Fonctionnel.
+
+ * 5. Appels Système
+ * -----------------
+ * - Interruption logicielle 0x80 installée dans l’IDT avec `handler_syscall`.
+ * - Fonction `init_syscall()` remplit une table de fonctions système.
+ * - Trois appels système testés :
+ *   - `example()` → retourne 1
+ *   - `write()` → affiche sur la console (remplace `console_putbytes` dans `printf`)
+ *   - `shutdown(n)` → arrête QEMU si `n == 1`
+ * - Les appels sont testés avec `printf`, `write("Short\n", 6)` et `shutdown(1)`.
+ * - Résultat attendu :
+ *   - Affichage console réalisé via syscall
+ *   - `write` retourne la taille correcte
+ *   - `shutdown` exécute un `outw(0x2000, 0x604)` pour quitter QEMU
+ *  Fonctionnalité : ✓ Implémentée et testée
+
+
+ * 6. Le Clavier
+ * -------------
+ * - IRQ1 gérée par un handler assembleur + fonction C.
+ * - Code touche récupéré depuis le port 0x60.
+ * - Table de correspondance code → caractère ASCII.
+ * - Buffer circulaire implémenté pour stocker les caractères lus.
+ * - Fonction kgetch() utilisée dans un test interactif ESC.
+ *   Test de saisie clavier validé : ✓ Fonctionnel.
+
+ * 7. Gestion des Processus
+ * ------------------------
+ * - Structure processus_t contenant PID, nom, pile, état, regs[5].
+ * - Table des processus statique (MAX_PROCESSUS = 10).
+ * - Création via creer_processus(nom, fonction).
+ * - Processus `processus1` : affiche "P1" puis se termine.
+ * - Processus `idle` : actif en permanence, affiche ".".
+ * - Ordonnancement round-robin déclenché par le timer.
+ * - Changement de contexte assuré par ctx_sw() en assembleur.
+ *   Tous les cas sont gérés, y compris fin_processus : ✓ Fonctionnel.
+
+ * Choix Techniques
+ * ----------------
+ * - Table des processus globale pour accès partagé entre start.c, ordonnanceur et scheduler.
+ * - Ordonnanceur cyclique simple : sélection du prochain processus PRET.
+ * - Pile par processus (pile[STACK_SIZE]), contexte sauvegardé dans regs[5].
+ * - Aucun malloc() ou gestion dynamique : tout est statique.
+ * - Affichage console et I/O clavier 100% en mode texte via mémoire vidéo et interruptions.
+
+
+NB : Pour tester les fonctionnalités, ouvrez le fichier start.c et décommentez chaque bloc correspondant aux tests souhaités.
+
+ */
